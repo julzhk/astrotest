@@ -17,11 +17,15 @@ class UnitTestFactory(object):
         """
         if not os.path.isfile(self.TESTCASE_FILENAME):
             with open(self.TESTCASE_FILENAME, 'a') as f:
+                function_fns = set()
+                f.write('import unittest\n')
                 try:
                     for fp in filepaths:
                         functionpath, function_fn = os.path.split(fp)
+                        function_fns.add(function_fn)
+                    for function_fn in function_fns:
                         f.write('from %s import *\n' % function_fn.replace('.py',''))
-                    f.write('import unittest\n')
+                    f.write('\n\n')
                     f.write('class SimpleTest(unittest.TestCase):\n\n')
                 except AttributeError:
                     print 'attribute err'
@@ -35,23 +39,20 @@ class UnitTestFactory(object):
             f.write("{0:s}{1:s}\n".format(prefix, data))
             datarepr = md5(data).hexdigest()[:6]
             data =eval(data)
-            try:
-                # result is a number
-                float(data['result'])
-                if isinstance(data['result'], float):
-                    data['testtype'] = 'Almost'
-                else:
-                    data['testtype'] = ''
-            except ValueError:
+            data['testtype'] = 'assertEqual'
+            if isinstance(data['result'], float):
+                data['testtype'] = 'assertAlmostEqual'
+            elif isinstance(data['result'], int):
+                pass
+            elif isinstance(data['result'], dict):
+                # result is a dict
+                data['testtype'] = 'assertDictEqual'
+            elif isinstance(data['result'], str):
                 # result is a string
                 data['result'] = "'%s'" % data['result']
-                data['testtype'] = ''
-            except TypeError:
-                # result is a dict
-                data['testtype'] = 'Dict'
 
             testtemplate='    def test_%(testname)s(self):\n' \
-                         '        self.assert%(testtype)sEqual(%(fn)s(*%(args)s, **%(kwargs)s), %(result)s)\n\n'
+                         '        self.%(testtype)s(%(fn)s(*%(args)s, **%(kwargs)s), %(result)s)\n\n'
             testcase = testtemplate % {'testname': '%s_%s' % (data['fn'], datarepr),
                                        'fn': data['fn'],
                                        'args': data['args'],
@@ -99,7 +100,11 @@ class test_logger(object):
         if not kwargs:
             kwargs = {}
         kwargs = HashableDict(kwargs)
-        self.data[function_name,args,kwargs] = r
+        try:
+            self.data[function_name,args,kwargs] = r
+        except TypeError:
+            # arg or kwarg is a dict. Can't make a key from these yet.
+            pass
         return r
 
     def __del__(self):
