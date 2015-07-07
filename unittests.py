@@ -1,12 +1,12 @@
 from test_1 import *
-from test_1 import *
-from test_1 import *
 import unittest
+
+
 class SimpleTest(unittest.TestCase):
 
 # testcase:{'args': (), 'result': 44, 'fn': 'simplefn', 'kwargs': {'a': 2, 'b': 3}}
     def test_simplefn_1c419a(self):
-        self.assertEqual(simplefn(*(), **{'a': 2, 'b': 3}), 44)
+        self.assertEqual(simplefn(*(), **{'a': 2, 'b': 3}), 44444)
 
 # testcase:{'args': (), 'result': 44, 'fn': 'simplefn', 'kwargs': {'a': 2, 'b': 4}}
     def test_simplefn_f8867a(self):
