@@ -1,4 +1,3 @@
-import cStringIO
 import os.path
 from hashlib import md5
 
@@ -11,25 +10,20 @@ class HashableDict(dict):
 class UnitTestFactory(object):
     TESTCASE_FILENAME = 'unittests.py'
 
-    def setupfile(self,filepaths):
+    def setupfile(self, filepaths):
         """
             Create a file with header imports etc
         """
         if not os.path.isfile(self.TESTCASE_FILENAME):
             with open(self.TESTCASE_FILENAME, 'a') as f:
-                function_fns = set()
-                f.write('import unittest\n')
                 try:
                     for fp in filepaths:
                         functionpath, function_fn = os.path.split(fp)
-                        function_fns.add(function_fn)
-                    for function_fn in function_fns:
                         f.write('from %s import *\n' % function_fn.replace('.py',''))
-                    f.write('\n\n')
+                    f.write('import unittest\n')
                     f.write('class SimpleTest(unittest.TestCase):\n\n')
                 except AttributeError:
                     print 'attribute err'
-
 
     def create_test_case_line(self, data, prefix=TESTCASE_PREFIX):
         """
@@ -39,20 +33,23 @@ class UnitTestFactory(object):
             f.write("{0:s}{1:s}\n".format(prefix, data))
             datarepr = md5(data).hexdigest()[:6]
             data =eval(data)
-            data['testtype'] = 'assertEqual'
-            if isinstance(data['result'], float):
-                data['testtype'] = 'assertAlmostEqual'
-            elif isinstance(data['result'], int):
-                pass
-            elif isinstance(data['result'], dict):
-                # result is a dict
-                data['testtype'] = 'assertDictEqual'
-            elif isinstance(data['result'], str):
+            try:
+                # result is a number
+                float(data['result'])
+                if isinstance(data['result'], float):
+                    data['testtype'] = 'Almost'
+                else:
+                    data['testtype'] = ''
+            except ValueError:
                 # result is a string
                 data['result'] = "'%s'" % data['result']
+                data['testtype'] = ''
+            except TypeError:
+                # result is a dict
+                data['testtype'] = 'Dict'
 
             testtemplate='    def test_%(testname)s(self):\n' \
-                         '        self.%(testtype)s(%(fn)s(*%(args)s, **%(kwargs)s), %(result)s)\n\n'
+                         '        self.assert%(testtype)sEqual(%(fn)s(*%(args)s, **%(kwargs)s), %(result)s)\n\n'
             testcase = testtemplate % {'testname': '%s_%s' % (data['fn'], datarepr),
                                        'fn': data['fn'],
                                        'args': data['args'],
@@ -99,11 +96,10 @@ class test_logger(object):
             args = ()
         if not kwargs:
             kwargs = {}
-        kwargs = HashableDict(kwargs)
         try:
-            self.data[function_name,args,kwargs] = r
-        except TypeError:
-            # arg or kwarg is a dict. Can't make a key from these yet.
+            kwargs = HashableDict(kwargs)
+            self.data[function_name, args, kwargs] = r
+        except:
             pass
         return r
 
@@ -112,11 +108,11 @@ class test_logger(object):
             self.unittestfile.setupfile(filepaths=self.filepath)
             data = self.unittestfile.read_test_file()
             for fn, args, kwargs in self.data:
-                funct_result = self.data[fn,args,kwargs]
-                r = {'fn':fn,
-                     'args':args,
-                     'kwargs':kwargs,
-                     'result':funct_result
+                funct_result = self.data[fn, args, kwargs]
+                r = {'fn': fn,
+                     'args': args,
+                     'kwargs': kwargs,
+                     'result': funct_result
                      }
                 funct_arg_sig = str(r)
                 if eval(funct_arg_sig) not in data:
