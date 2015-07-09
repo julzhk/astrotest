@@ -1,33 +1,27 @@
 import unittest
-# from test_gen import test_logger,UnitTestFactory
+from test_gen import test_logger,UnitTestFactory,HashableDict
 
+def simplefn(a=1):
+    return a
 
-# @test_logger
-def simplefn(a=1,b=2):
-    return 'bbb'
+class GenerateDictSignaturesTests(unittest.TestCase):
 
-# @test_logger
-def simplefntwo(a=1,b=2,v=4):
-    return a+b + v
+    def testcallsimplefunctions_with_decorator(self):
+        logger_decorator = test_logger(f = simplefn)
+        r= logger_decorator.__call__()
+        self.assertEqual(r, 1)
 
+    def testcallsimplefunctions_get_signature(self):
+        logger_decorator = test_logger(f = simplefn)
+        r= logger_decorator.__call__()
+        self.assertDictEqual(logger_decorator.data, {('simplefn', (), HashableDict()): 1})
 
-# class SimpleTest(unittest.TestCase):
-#
-#     def testAdd(self):  ## test method names begin 'test*'
-#         self.assertEqual(0 + 1, 1)
+    def testcallfunction_with_args_get_signature(self):
+        logger_decorator = test_logger(f = simplefn)
+        r= logger_decorator.__call__(a=2)
+        print logger_decorator.data
+        self.assertDictEqual(logger_decorator.data, {('simplefn', (), HashableDict(a=2)): 2})
 
-# if __name__ == '__main__':
-#     unittest.main()
+if __name__ == '__main__':
+    unittest.main()
 
-
-print simplefn(a=2,b=3)
-print simplefn(a=2,b=4)
-print simplefntwo(a=2,b=4)
-print simplefntwo()
-print simplefntwo(a=2)
-print simplefntwo(a=3)
-for a in range(0,10):
-    for b in range(0,10):
-        for v in range(0,10):
-            simplefntwo(a=a,b=b,v=v)
-print '--'
