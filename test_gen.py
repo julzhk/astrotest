@@ -96,8 +96,11 @@ class test_logger(object):
             args = ()
         if not kwargs:
             kwargs = {}
-        kwargs = HashableDict(kwargs)
-        self.data[function_name, args, kwargs] = r
+        try:
+            kwargs = HashableDict(kwargs)
+            self.data[function_name, args, kwargs] = r
+        except:
+            pass
         return r
 
     def __del__(self):
