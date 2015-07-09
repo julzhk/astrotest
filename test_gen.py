@@ -15,11 +15,14 @@ class UnitTestFactory(object):
             Create a file with header imports etc
         """
         if not os.path.isfile(self.TESTCASE_FILENAME):
+            imports_statements = set()
             with open(self.TESTCASE_FILENAME, 'a') as f:
                 try:
                     for fp in filepaths:
                         functionpath, function_fn = os.path.split(fp)
-                        f.write('from %s import *\n' % function_fn.replace('.py',''))
+                        imports_statements.add('from %s import *\n' % function_fn.replace('.py',''))
+                    for imports_statement in imports_statements:
+                        f.write('%s\n' % imports_statement)
                     f.write('import unittest\n')
                     f.write('class SimpleTest(unittest.TestCase):\n\n')
                 except AttributeError:
