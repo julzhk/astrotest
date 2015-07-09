@@ -34,26 +34,27 @@ class UnitTestFactory(object):
         """
         with open(self.TESTCASE_FILENAME, 'a') as f:
             f.write("{0:s}{1:s}\n".format(prefix, data))
-            datarepr = md5(data).hexdigest()[:6]
+            test_hex = md5(data).hexdigest()[:6]
             data =eval(data)
-            try:
-                # result is a number
-                float(data['result'])
-                if isinstance(data['result'], float):
-                    data['testtype'] = 'Almost'
-                else:
-                    data['testtype'] = ''
-            except ValueError:
-                # result is a string
+            if isinstance(data['result'], float):
+                data['testtype'] = 'assertAlmostEqual'
+            elif isinstance(data['result'], int):
+                data['testtype'] = 'assertEqual'
+            elif isinstance(data['result'], dict):
+                data['testtype'] = 'assertDictEqual'
+            elif isinstance(data['result'], str):
                 data['result'] = "'%s'" % data['result']
-                data['testtype'] = ''
-            except TypeError:
-                # result is a dict
-                data['testtype'] = 'Dict'
+                data['testtype'] = 'assertEqual'
+            elif isinstance(data['result'], object):
+                # not supported
+                return
+            else:
+                # unknown result type
+                return
 
             testtemplate='    def test_%(testname)s(self):\n' \
-                         '        self.assert%(testtype)sEqual(%(fn)s(*%(args)s, **%(kwargs)s), %(result)s)\n\n'
-            testcase = testtemplate % {'testname': '%s_%s' % (data['fn'], datarepr),
+                         '        self.%(testtype)s(%(fn)s(*%(args)s, **%(kwargs)s), %(result)s)\n\n'
+            testcase = testtemplate % {'testname': '%s_%s' % (data['fn'], test_hex),
                                        'fn': data['fn'],
                                        'args': data['args'],
                                        'kwargs': data['kwargs'],
