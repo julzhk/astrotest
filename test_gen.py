@@ -1,4 +1,3 @@
-import cStringIO
 import os.path
 from hashlib import md5
 
@@ -11,7 +10,7 @@ class HashableDict(dict):
 class UnitTestFactory(object):
     TESTCASE_FILENAME = 'unittests.py'
 
-    def setupfile(self,filepaths):
+    def setupfile(self, filepaths):
         """
             Create a file with header imports etc
         """
@@ -25,7 +24,6 @@ class UnitTestFactory(object):
                     f.write('class SimpleTest(unittest.TestCase):\n\n')
                 except AttributeError:
                     print 'attribute err'
-
 
     def create_test_case_line(self, data, prefix=TESTCASE_PREFIX):
         """
@@ -99,7 +97,7 @@ class test_logger(object):
         if not kwargs:
             kwargs = {}
         kwargs = HashableDict(kwargs)
-        self.data[function_name,args,kwargs] = r
+        self.data[function_name, args, kwargs] = r
         return r
 
     def __del__(self):
@@ -107,11 +105,11 @@ class test_logger(object):
             self.unittestfile.setupfile(filepaths=self.filepath)
             data = self.unittestfile.read_test_file()
             for fn, args, kwargs in self.data:
-                funct_result = self.data[fn,args,kwargs]
-                r = {'fn':fn,
-                     'args':args,
-                     'kwargs':kwargs,
-                     'result':funct_result
+                funct_result = self.data[fn, args, kwargs]
+                r = {'fn': fn,
+                     'args': args,
+                     'kwargs': kwargs,
+                     'result': funct_result
                      }
                 funct_arg_sig = str(r)
                 if eval(funct_arg_sig) not in data:
