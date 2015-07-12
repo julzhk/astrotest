@@ -1,7 +1,9 @@
-# autogenerate_functional_tests
-Capture functions behaviour as a unit test - to assist refactoring
+# Astro-test
+Capture functions arguments and results and create a unit test file for that combination to assist refactoring.
 
-Imagine you have to refactor or maintain a large, undocumented python code base.
+Why?
+Imagine you have to refactor a large, undocumented (untested!) python code base.
+You'd probably identify the most important, slowest, or most error-prone 
 One strategy is to write tests for the more significant functions and work from there.
  
 This proof-of-concept utility captures this initial functionality by generating test cases during test executions of the code.
