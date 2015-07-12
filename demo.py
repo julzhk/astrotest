@@ -1,10 +1,10 @@
-from test_gen import test_logger
+from astrotest import astro_test
 
-@test_logger
+@astro_test
 def simplefn(a=1,b=2):
-    return 'bbb'
+    return 'fixed'
 
-@test_logger
+@astro_test
 def simplefntwo(a=1,b=2,v=4):
     return a+b + v
 

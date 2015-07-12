@@ -1,4 +1,5 @@
 import os.path
+import logging
 from hashlib import md5
 
 TESTCASE_PREFIX = u'# testcase:'
@@ -65,13 +66,14 @@ class UnitTestFactory(object):
 
     def read_test_file(self):
         """
-            read out the data from comments
+            read out the arg signature from comments
         """
         with open(self.TESTCASE_FILENAME, 'r') as f:
-            data =self.extract_testcase_comments_from_file(f)
+            data = self.extract_testcase_signatures_from_file(f)
         return data
 
-    def extract_testcase_comments_from_file(self, f):
+    @staticmethod
+    def extract_testcase_signatures_from_file(f):
         data = []
         for testcasedata in f:
             if testcasedata.startswith(TESTCASE_PREFIX):
@@ -84,8 +86,10 @@ class UnitTestFactory(object):
         return data
 
 
-class test_logger(object):
-
+class astro_test(object):
+    """
+    decorator: capture function name, args, kwargs, results and writes out a unit-test for that combination
+    """
     def __init__(self, f):
         self.func = f
         self.data = {}
@@ -93,6 +97,15 @@ class test_logger(object):
         self.unittestfile = UnitTestFactory()
 
     def __call__(self, *args, **kwargs):
+        """
+
+        :param args: variable
+        :param kwargs: variable
+        :return: function result
+
+        side-effect: stores function name, args and results for processing
+        in tear-down phase(see __del__ method)
+        """
         function_name = self.func.__name__
         self.filepath.append(self.func.func_globals['__file__'])
         r = self.func(*args, **kwargs)
@@ -108,6 +121,11 @@ class test_logger(object):
         return r
 
     def __del__(self):
+        """
+        When the decorator is evicted from memory (execution termination),
+        compare data logged from this execution with previous runs,
+        append these new logged examples as unit tests.
+        """
         try:
             self.unittestfile.setupfile(filepaths=self.filepath)
             data = self.unittestfile.read_test_file()
@@ -122,7 +140,7 @@ class test_logger(object):
                 if eval(funct_arg_sig) not in data:
                     self.unittestfile.create_test_case_line(data=funct_arg_sig)
         except AttributeError:
-            print 'running in a unit test, so no logging'
+            logging.info('Using astrotest logger in a unit test: no logging')
             return
 
 

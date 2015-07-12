@@ -1,4 +1,4 @@
-from test_1 import *
+from demo import *
 
 import unittest
 class SimpleTest(unittest.TestCase):
@@ -34,4 +34,20 @@ class SimpleTest(unittest.TestCase):
 # testcase:{'args': (), 'result': 2, 'fn': 'simplefn', 'kwargs': {'a': 2}}
     def test_simplefn_bd92eb(self):
         self.assertEqual(simplefn(*(), **{'a': 2}), 2)
+
+# testcase:{'args': (3,), 'result': 3, 'fn': 'simplefn', 'kwargs': {}}
+    def test_simplefn_b925e2(self):
+        self.assertEqual(simplefn(*(3,), **{}), 3)
+
+# testcase:{'args': (), 'result': 4, 'fn': 'simplefn', 'kwargs': {'a': 4}}
+    def test_simplefn_cf8978(self):
+        self.assertEqual(simplefn(*(), **{'a': 4}), 4)
+
+# testcase:{'args': (2,), 'result': 2, 'fn': 'simplefn', 'kwargs': {}}
+    def test_simplefn_97dc25(self):
+        self.assertEqual(simplefn(*(2,), **{}), 2)
+
+# testcase:{'args': (), 'result': 3, 'fn': 'simplefn', 'kwargs': {'a': 3}}
+    def test_simplefn_539aeb(self):
+        self.assertEqual(simplefn(*(), **{'a': 3}), 3)
 
