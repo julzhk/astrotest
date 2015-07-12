@@ -4,9 +4,11 @@ from hashlib import md5
 
 TESTCASE_PREFIX = u'# testcase:'
 
+
 class HashableDict(dict):
     def __hash__(self):
         return hash(tuple(sorted(self.iteritems())))
+
 
 class UnitTestFactory(object):
     TESTCASE_FILENAME = 'unittests.py'
@@ -21,13 +23,13 @@ class UnitTestFactory(object):
                 try:
                     for fp in filepaths:
                         functionpath, function_fn = os.path.split(fp)
-                        imports_statements.add('from %s import *\n' % function_fn.replace('.py',''))
+                        imports_statements.add('from %s import *\n' % function_fn.replace('.py', ''))
                     for imports_statement in imports_statements:
                         f.write('%s\n' % imports_statement)
                     f.write('import unittest\n')
                     f.write('class SimpleTest(unittest.TestCase):\n\n')
                 except AttributeError:
-                    print 'attribute err'
+                    logging.info('attribute err')
 
     def create_test_case_line(self, data, prefix=TESTCASE_PREFIX):
         """
@@ -36,7 +38,7 @@ class UnitTestFactory(object):
         with open(self.TESTCASE_FILENAME, 'a') as f:
             f.write("{0:s}{1:s}\n".format(prefix, data))
             test_hex = md5(data).hexdigest()[:6]
-            data =eval(data)
+            data = eval(data)
             if isinstance(data['result'], float):
                 data['testtype'] = 'assertAlmostEqual'
             elif isinstance(data['result'], int):
@@ -53,8 +55,8 @@ class UnitTestFactory(object):
                 # unknown result type
                 return
 
-            testtemplate='    def test_%(testname)s(self):\n' \
-                         '        self.%(testtype)s(%(fn)s(*%(args)s, **%(kwargs)s), %(result)s)\n\n'
+            testtemplate = '    def test_%(testname)s(self):\n' \
+                           '        self.%(testtype)s(%(fn)s(*%(args)s, **%(kwargs)s), %(result)s)\n\n'
             testcase = testtemplate % {'testname': '%s_%s' % (data['fn'], test_hex),
                                        'fn': data['fn'],
                                        'args': data['args'],
@@ -82,7 +84,7 @@ class UnitTestFactory(object):
                     r = eval(casedata)
                     data.append(r)
                 except SyntaxError:
-                    print 'err:', testcasedata
+                    logging.info('err:', testcasedata)
         return data
 
 
@@ -90,6 +92,7 @@ class astro_test(object):
     """
     decorator: capture function name, args, kwargs, results and writes out a unit-test for that combination
     """
+
     def __init__(self, f):
         self.func = f
         self.data = {}
@@ -142,6 +145,3 @@ class astro_test(object):
         except AttributeError:
             logging.info('Using astrotest logger in a unit test: no logging')
             return
-
-
-
