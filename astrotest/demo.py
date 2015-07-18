@@ -1,4 +1,4 @@
-from astrotest import astro_test
+from astrotest.astrotest import astro_test
 
 @astro_test
 def simplefn(a=1,b=2):
@@ -8,7 +8,7 @@ def simplefn(a=1,b=2):
 def simplefntwo(a=1,b=2,v=4):
     return a+b + v
 
-
+# now call the functions, to create unittests
 print simplefn(a=2,b=3)
 print simplefn(a=2,b=4)
 print simplefntwo(a=2,b=4)

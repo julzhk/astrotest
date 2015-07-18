@@ -1,4 +1,5 @@
 import unittest
+import io
 from astrotest import astro_test, UnitTestFactory, HashableDict
 
 def simplefn(a=1):

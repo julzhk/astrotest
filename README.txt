@@ -8,12 +8,18 @@ One strategy is to write tests for the more significant functions and work from 
  
 This proof-of-concept utility captures this initial functionality by generating test cases during test executions of the code.
 
+Why 'Astrotest'?
+===
+
+'Astroturfing' is a term meaning to create inauthentic comments or discussion to influence or overwhelm 
+natural organic debate. Hence 'Astro-testing': it's not authentically TDD; it can create a large number of tests.
+
 Example
 ===
 
 If the following function has the test_logging decorator:
 
-    @test_logger
+    @astro_test
     def simplefn(a,b):
         return a+b
     
